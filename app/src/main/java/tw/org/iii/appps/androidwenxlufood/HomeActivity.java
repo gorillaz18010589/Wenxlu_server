@@ -33,7 +33,8 @@ package tw.org.iii.appps.androidwenxlufood;
 //loadMenu 增/刪/修/顯示
 //1.伺服器端的Database先匯出修改一下
 //2.Foods裡欄位的第一個字全部改小寫
-//3.loadMenu =>
+//3.loadMenu => menuViewHolder.setItemClickListener時,Intent到FoodList頁面
+//4.複製用戶端的ui
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -304,12 +305,15 @@ public class HomeActivity extends AppCompatActivity
                             .load(category.getImage())//讀取圖片
                             .into(menuViewHolder.imageView);//圖片顯示
 
-                //按下item圖片時叫出menu的選項
+                //按下item圖片時時到FoodList指定頁面
                 menuViewHolder.setItemClickListener(new ItemClickListener() {
                     @Override
                     public void onClick(View view, int position, boolean isLongClick) {
-                        //sned Category id and start new activity
-                        Log.v("brad","menuViewHolder.ItemOnClicik,"+"postion:" + position);
+                        //設置CategoryId,傳到
+                        Intent foodList = new Intent(HomeActivity.this,FoodListActivity.class);
+                        foodList.putExtra("CategoryId",adapter.getRef(position).getKey());
+                        startActivity(foodList);
+                        Log.v("brad","menuViewHolder.ItemOnClicik,"+"CatrgoryId:" + adapter.getRef(position).getKey());
                     }
                 });
             }
@@ -368,7 +372,7 @@ public class HomeActivity extends AppCompatActivity
     }
 
     //Update / Delete
-    //10.當menu選單被選擇時,刪除,更新等按鈕
+    //10.當menu選單被按兩秒時,刪除,更新等按鈕
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {//Menu Item 類似UPDATE按鈕根DElETE按鈕Item
 
