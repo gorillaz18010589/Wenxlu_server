@@ -16,16 +16,24 @@ package tw.org.iii.appps.androidwenxlufood;
 //inflate(int resource, @Nullable ViewGroup root)://擴充抓到View(1.Virw的資源檔,2.根視圖)(回傳View)
 //setView(View view):配置View(回傳Builder)
 
+//setType(String type):(回傳值Intent)
+//setAction(@Nullable String action):(回傳值Intent)
+//startActivityForResult(Intent intent,int requestCode)://設定要跳轉的頁面(1.跳轉的頁面intent,2.回應馬對應要接收的itent)
+//createChooser(Intent target, CharSequence title):(回傳值Intent):建立選擇器(1.需要intent的物件,2.提示名)
+
 //DatabaseReference.removeValue()://刪除Firebase資料庫節點
 //getOrder();將字串轉成index
-
-
 
 //刪除/更新
 //1.新增刪除更新按鈕
 //2.實作View.OnCreateContextMenuListener :類似按下右鍵出現選項
 //3.在Common新增
 //4.實做onCreateContextMenu,並且在loadMenu裡設置itemOnclik事件,並且在MenuViewHolder裡建構式加上itemView.setOnCreateContextMenuListener(this);//讓item下去時ContextMenu有反應
+
+//loadMenu 增/刪/修/顯示
+//1.伺服器端的Database先匯出修改一下
+//2.Foods裡欄位的第一個字全部改小寫
+//3.loadMenu =>
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -274,10 +282,6 @@ public class HomeActivity extends AppCompatActivity
     }
 
     //7.按下Select選擇圖片檔案
-    // setType(String type):(回傳值Intent)
-    //setAction(@Nullable String action):(回傳值Intent)
-    //startActivityForResult(Intent intent,int requestCode)://設定要跳轉的頁面(1.跳轉的頁面intent,2.回應馬對應要接收的itent)
-    //createChooser(Intent target, CharSequence title):(回傳值Intent):建立選擇器(1.需要intent的物件,2.提示名)
     private void chooseImage() {
         Intent intent = new Intent();
         intent.setType("image/*");//設定itntet種類(所有圖片類型)
@@ -304,6 +308,7 @@ public class HomeActivity extends AppCompatActivity
                 menuViewHolder.setItemClickListener(new ItemClickListener() {
                     @Override
                     public void onClick(View view, int position, boolean isLongClick) {
+                        //sned Category id and start new activity
                         Log.v("brad","menuViewHolder.ItemOnClicik,"+"postion:" + position);
                     }
                 });
@@ -383,14 +388,12 @@ public class HomeActivity extends AppCompatActivity
 
     }
     //13.當按下DELETE按鈕時刪除
-    //DatabaseReference.removeValue()://刪除Firebase資料庫節點
     private void deleteDialog(String key) {
         Log.v("brad","key:" +key);
         categories.child(key).removeValue();
         Toast.makeText(HomeActivity.this,"Item deleted",Toast.LENGTH_SHORT).show();
 
     }
-
 
 
     //11.當按下更新Update時方法
