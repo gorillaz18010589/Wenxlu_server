@@ -110,7 +110,7 @@ public class HomeActivity extends AppCompatActivity
     Category newCatrgory;
 
     Uri saveUri; //網路圖片檔
-    private  final  int PICK_IMAGE_REQUEST = 71;
+
 
     DrawerLayout drawer;
 
@@ -219,8 +219,6 @@ public class HomeActivity extends AppCompatActivity
 
         });
         alertDialog.show();//顯示DiaLog
-
-
     }
 
     //9.上傳圖片檔方法
@@ -275,9 +273,9 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
-        && data != null && data.getData() != null){
-            saveUri = data.getData();
+        if(requestCode == Common.PICK_IMAGE_REQUEST && resultCode == RESULT_OK //如果code== 71 而且結果送出Code== ok
+        && data != null && data.getData() != null){//而且data資料有近來
+            saveUri = data.getData();//取得data資料,灌到uri裡
             btnSelect.setText("Image Selected");
         }
     }
@@ -287,7 +285,7 @@ public class HomeActivity extends AppCompatActivity
         Intent intent = new Intent();
         intent.setType("image/*");//設定itntet種類(所有圖片類型)
         intent.setAction(Intent.ACTION_GET_CONTENT);//設定呼叫哪些程式(ACTION_GET_CONTENT== 有哪些程式可以會自己跳出來)
-        startActivityForResult(Intent.createChooser(intent,"Select Picture"),PICK_IMAGE_REQUEST);//設定要跳轉的頁面(1.跳轉的頁面intent,2.回應馬對應要接收的itent)
+        startActivityForResult(Intent.createChooser(intent,"Select Picture"),Common.PICK_IMAGE_REQUEST);//設定要跳轉的頁面(1.跳轉的頁面intent,2.回應馬對應要接收的itent)
     }
 
     //3.用FirebaseRecyclerAdapter讀取category灌到RecycleView
@@ -371,12 +369,10 @@ public class HomeActivity extends AppCompatActivity
         return true;
     }
 
-    //Update / Delete
-    //10.當menu選單被按兩秒時,刪除,更新等按鈕
+
+    //10.當menu選單被按兩秒時,刪除,更新等按鈕 //Update / Delete
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {//Menu Item 類似UPDATE按鈕根DElETE按鈕Item
-
-        //點選UPADE按鈕時
         if(item.getTitle().equals(Common.UPDATE)){//如果這個item的欄位名稱等於UPDATE的話
             showUpdateDialog(adapter.getRef(item.getOrder()).getKey(),
                    adapter.getItem(item.getOrder()));
@@ -391,6 +387,7 @@ public class HomeActivity extends AppCompatActivity
         return super.onContextItemSelected(item);
 
     }
+
     //13.當按下DELETE按鈕時刪除
     private void deleteDialog(String key) {
         Log.v("brad","key:" +key);

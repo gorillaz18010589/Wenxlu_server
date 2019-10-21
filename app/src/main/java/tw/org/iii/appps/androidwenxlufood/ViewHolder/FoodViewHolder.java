@@ -16,16 +16,16 @@ public class FoodViewHolder extends RecyclerView.ViewHolder implements
         View.OnClickListener,
         View.OnCreateContextMenuListener
 {
-    public TextView txtMenuName; //自己定義的要得標提名
-    public ImageView imageView; //自己定義的圖片名
+    public TextView food_name; //自己定義的要得標提名
+    public ImageView food_image; //自己定義的圖片名
 
     private ItemClickListener itemClickListener; //自己寫好的介面
 
     //1.當取得itemView時,要先創一個item view(Card View)讓並抓到這個id
     public FoodViewHolder(View itemView) {
         super(itemView);
-        txtMenuName =  itemView.findViewById(R.id.food_name);
-        imageView= itemView.findViewById(R.id.food_image);
+        food_name =  itemView.findViewById(R.id.food_name);
+        food_image= itemView.findViewById(R.id.food_image);
 
         itemView.setOnClickListener(this);
         itemView.setOnCreateContextMenuListener(this);//讓item下去時ContextMenu有反應

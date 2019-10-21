@@ -5,35 +5,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/siginbackground"
+    android:id="@+id/root_layout"
     tools:context=".FoodListActivity">
 
 
-    <androidx.appcompat.widget.SearchView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/searchBar"
-        android:layout_alignParentTop="true"
-        app:queryHint="Enter your Food"
-        >
-    </androidx.appcompat.widget.SearchView>
 
 
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_below="@+id/searchBar"
         android:id="@+id/recycler_food"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/food_lisTfab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_margin="@dimen/fab_margin"
         android:backgroundTint="@android:color/white"
-        app:srcCompat="@drawable/ic_shopping_cart_black_24dp" />
+        app:srcCompat="@drawable/ic_playlist_add_black_24dp" />
 
 </RelativeLayout>
