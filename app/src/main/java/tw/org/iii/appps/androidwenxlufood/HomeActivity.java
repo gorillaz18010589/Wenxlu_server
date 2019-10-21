@@ -332,7 +332,7 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
-    //漢堡按鈕產生時
+    //右上角Options產生時
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -340,7 +340,7 @@ public class HomeActivity extends AppCompatActivity
         return true;
     }
 
-    //漢堡按鈕導覽列,有點選item時
+    //選到時按鈕
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -356,13 +356,18 @@ public class HomeActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    //漢堡按鈕導覽列,有點選item時
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
+        int id = item.getItemId();//取得這個item id
 
-
+        if(id == R.id.nav_orders){
+            Intent orders = new Intent(HomeActivity.this,OrderStatusActivity.class);
+            startActivity(orders);
+            Log.v("brad","onNav Id:" + id);
+        }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

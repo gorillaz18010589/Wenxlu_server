@@ -41,6 +41,7 @@ dependencies {
     implementation 'com.cepheuen.elegant-number-button:lib:1.0.2'
     implementation 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
     implementation 'com.readystatesoftware.sqliteasset:sqliteassethelper:+'
+    implementation 'com.github.jaredrummler:material-spinner:1.0.8'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
