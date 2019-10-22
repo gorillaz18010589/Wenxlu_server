@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -83,17 +84,20 @@ public class OrderStatusActivity extends AppCompatActivity {
                 requests
         ) {
             @Override
-            protected void populateViewHolder(OrderViewHolder orderViewHolder, Request request, int i) {
+            protected void populateViewHolder(OrderViewHolder orderViewHolder, final Request request, int i) {
                     orderViewHolder.txtOrderId.setText(adapter.getRef(i).getKey());
                     orderViewHolder.txtOrderStatus.setText(Common.convertCodeToStatus(request.getStatus()));//設定送餐狀態(code)
                     orderViewHolder.txtOrderAddress.setText(request.getAddress());
                     orderViewHolder.txtOrderPhone.setText(request.getPhone());
                 Log.v("brad","Stautus:" + request.getStatus());
 
-                    orderViewHolder.setItemClickListener(new ItemClickListener() {
+                    orderViewHolder.setItemClickListener(new ItemClickListener() {//點選訂單時
                         @Override
                         public void onClick(View view, int position, boolean isLongClick) {
-
+                            Intent trackingOrder = new Intent(OrderStatusActivity.this,TrackingOrderMapsActivity.class);
+                            Common.currentRequest = request; //將現在的狀態節點,存起來,可以玩現在狀態物件
+                            startActivity(trackingOrder);
+                            Log.v("brad","OrderStatus_item" + position);
                         }
                     });
             }
