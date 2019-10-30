@@ -119,6 +119,7 @@ public class TrackingOrderMapsActivity extends FragmentActivity implements OnMap
     private static int DISPLACEMENT = 10;//位移10
 
     private IGeoCoordinates mService;
+    private String key ="AIzaSyDK-5bqsMqmN1eIN6ScxcXTO8dS-cxsJP4";//google map key
 
 
 
@@ -168,10 +169,10 @@ public class TrackingOrderMapsActivity extends FragmentActivity implements OnMap
             requestRuntimePermission();
         }else {//有權限的話
            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);//取得最後的gps位置(客戶的gps)
-           if(mLastLocation!= null) //如果客戶GPS有近來
+           if(mLastLocation!= null) //如果GPS有近來
            {
-               double latitude =  mLastLocation.getLatitude(); //取得緯度
-               double longitude = mLastLocation.getLongitude(); //取得經度
+               double latitude =  mLastLocation.getLatitude(); //取得使用者緯度
+               double longitude = mLastLocation.getLongitude(); //取得使用者經度
 
                LatLng yourLocation = new LatLng(latitude,longitude);//設定緯度精度
                mMap.addMarker(new MarkerOptions().position(yourLocation).title("Your Location"));//創造一個新標記位置是你的經緯度,設定標題
@@ -191,7 +192,7 @@ public class TrackingOrderMapsActivity extends FragmentActivity implements OnMap
 
     //15.畫地圖方法
     private void drawRoute(final LatLng yourLocation , String address){
-        mService.getGeoCode(address).enqueue(new Callback<String>() {
+        mService.getGeoCode(address,key).enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 try{
@@ -211,15 +212,15 @@ public class TrackingOrderMapsActivity extends FragmentActivity implements OnMap
                             .get("lng").toString();
 
 
-                    //設定經緯度
+                    //設定顧客經緯度
                     LatLng orderLocation = new LatLng(Double.parseDouble(lat),Double.parseDouble(lng));
 
-                    //設定圖片
+                    //設定取餐地址圖片
                     Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.home);
                     bitmap = Common.scaleBitmap(bitmap,70,70);
 
                     // MarkerOptions.icon(@Nullable BitmapDescriptor var1)
-                    //設定Marke
+                    //設定標記Marke
                     MarkerOptions maker = new MarkerOptions()
                             .icon(BitmapDescriptorFactory.fromBitmap(bitmap))//設定圖片為(bitmap Home圖案)
                             .title("Oder of " +Common.currentRequest.getPhone())//設定標題名為(用戶的電話)
@@ -227,8 +228,8 @@ public class TrackingOrderMapsActivity extends FragmentActivity implements OnMap
                     mMap.addMarker(maker);//地圖設置標記
 
                     //畫線
-                    mService.getDirections(yourLocation.latitude+"," +yourLocation.longitude,
-                                            orderLocation.latitude+"," + orderLocation.longitude)
+                    mService.getDirections(yourLocation.latitude+"," +yourLocation.longitude,//起點經緯度
+                                            orderLocation.latitude+"," + orderLocation.longitude,key) //目的的經緯度
                             .enqueue(new Callback<String>() {
                                 @Override
                                 public void onResponse(Call<String> call, Response<String> response) {
@@ -254,7 +255,7 @@ public class TrackingOrderMapsActivity extends FragmentActivity implements OnMap
         });
     }
 
-    //7.建立Location請求物件
+    //7.建立Location請求物件,設定gps回應的方式
     private void crateLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(UPDATE_INTERVAL);//設定讀取位置資訊的間隔時間為一（1000ms）
@@ -335,6 +336,7 @@ public class TrackingOrderMapsActivity extends FragmentActivity implements OnMap
         Log.v("brad","onMapReady=> " +"GoogleMap:" + googleMap);
 
     }
+
     //9.已經連線到Google Services 啟動用戶gps的經緯度 (GoogleApiClient.ConnectionCallbacks實做方法)
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -411,8 +413,10 @@ public class TrackingOrderMapsActivity extends FragmentActivity implements OnMap
             super.onPreExecute();
             mDialog.setMessage("Pleas wait...");
             mDialog.show();
+            Log.v("brad","onPreExecute()");
         }
 
+        //在背景執行 routes傳給onPostExecute去分解
         @Override
         protected List<List<HashMap<String, String>>> doInBackground(String... strings) {
             JSONObject jObject;
@@ -425,6 +429,7 @@ public class TrackingOrderMapsActivity extends FragmentActivity implements OnMap
             }catch (Exception e){
                 Log.v("brad","e:"+ e.toString());
             }
+            Log.v("brad","routes:" + routes);
             return  routes;
         }
 
@@ -432,11 +437,11 @@ public class TrackingOrderMapsActivity extends FragmentActivity implements OnMap
         protected void onPostExecute(List<List<HashMap<String, String>>> lists) {
             mDialog.dismiss();
 
-            ArrayList points = null;
+            ArrayList pointse = null;
             PolylineOptions lineOptions = null;
 
             for(int i=0; i<lists.size(); i++){
-                points = new ArrayList();
+                pointse = new ArrayList();
                 lineOptions = new PolylineOptions();
 
                 List<HashMap<String,String>> path = lists.get(i);
@@ -448,17 +453,17 @@ public class TrackingOrderMapsActivity extends FragmentActivity implements OnMap
                    double lng = Double.parseDouble(point.get("lng"));
                    LatLng position = new LatLng(lat,lng);
 
-                   points.add(position);
+                   pointse.add(position);
 
                 }
 
-                lineOptions.addAll(points);
+                lineOptions.addAll(pointse);
                 lineOptions.width(12);
                 lineOptions.color(Color.BLUE);
                 lineOptions.geodesic(true);
             }
             mMap.addPolyline(lineOptions);
-
+            Log.v("brad","onPreExecute()");
 
         }
     }
