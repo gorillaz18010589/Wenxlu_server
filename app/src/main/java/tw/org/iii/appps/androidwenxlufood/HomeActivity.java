@@ -105,7 +105,7 @@ public class HomeActivity extends AppCompatActivity
 
     //Add New Menu Layout
     EditText edtName;
-    FButton btnUpload,btnSelect;
+    FButton btnUpload,btnSelect,btnCamera;
 
     Category newCatrgory;
 
@@ -174,6 +174,7 @@ public class HomeActivity extends AppCompatActivity
         edtName = add_menu_layout.findViewById(R.id.editName);
         btnUpload = add_menu_layout.findViewById(R.id.btnUpload);
         btnSelect = add_menu_layout.findViewById(R.id.btnSelect);
+        btnCamera = add_menu_layout.findViewById(R.id.btnCamera);
 
         //配置btnSelect按鈕事件,呼叫檔案選擇方法
         btnSelect.setOnClickListener(new View.OnClickListener() {
@@ -188,6 +189,13 @@ public class HomeActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 uploadImage();
+            }
+        });
+
+        btnCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                uploadCamera();
             }
         });
 
@@ -219,6 +227,11 @@ public class HomeActivity extends AppCompatActivity
 
         });
         alertDialog.show();//顯示DiaLog
+    }
+
+    //14.拍照後照片上傳
+    private void uploadCamera() {
+        Log.v("brad","uploadCamera");
     }
 
     //9.上傳圖片檔方法
@@ -481,6 +494,8 @@ public class HomeActivity extends AppCompatActivity
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 mDoalog.dismiss();
                 Toast.makeText(HomeActivity.this,"Uploaded!!!",Toast.LENGTH_SHORT).show();
+
+                //當檔案下載成功時
                 imageFolder.getDownloadUrl()
                         .addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override

@@ -26,7 +26,7 @@
             />
 
         <LinearLayout
-            android:weightSum="2"
+            android:weightSum="3"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -45,6 +45,21 @@
                 app:buttonColor="@color/colorPrimary"
                 app:shadowColor="@android:color/black"
                 />
+
+            <info.hoang8f.widget.FButton
+            android:id="@+id/btnCamera"
+            android:text="Camera"
+            android:textColor="@android:color/white"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_weight="1"
+            android:layout_alignParentBottom="true"
+            app:buttonColor="@color/colorPrimaryDark"
+            app:shadowColor="@android:color/black"
+            />
 
             <info.hoang8f.widget.FButton
                 android:id="@+id/btnUpload"
