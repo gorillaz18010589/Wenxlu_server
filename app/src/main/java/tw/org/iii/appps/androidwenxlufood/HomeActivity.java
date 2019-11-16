@@ -35,9 +35,11 @@ package tw.org.iii.appps.androidwenxlufood;
 //2.Foods裡欄位的第一個字全部改小寫
 //3.loadMenu => menuViewHolder.setItemClickListener時,Intent到FoodList頁面
 //4.複製用戶端的ui
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -47,6 +49,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,6 +58,9 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 
@@ -80,6 +87,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.UUID;
 
 import info.hoang8f.widget.FButton;
@@ -109,7 +117,10 @@ public class HomeActivity extends AppCompatActivity
 
     Category newCatrgory;
 
-    Uri saveUri; //網路圖片檔
+
+    Uri saveUri; //selecet照片的uri
+    Uri cameraUri;//拍照的 uri
+    File sdroot; //拍照存檔路徑
 
 
     DrawerLayout drawer;
@@ -118,6 +129,24 @@ public class HomeActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        //15.相機權限,讀取讀出外部檔案權限
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+
+        {
+            requestRuntimePermission();
+            Log.v("brad", "沒權限去要");
+
+        }else {
+            init();
+            Log.v("brad","有權限init()");
+        }
+
+    }
+
+    private void init(){
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Menu Management");
@@ -129,16 +158,18 @@ public class HomeActivity extends AppCompatActivity
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference("images/");
 
+        sdroot = Environment.getExternalStorageDirectory();
+
         //5.Fab icon按鈕按下去新增檔案上傳
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-              showDialog();
+                showDialog();
             }
         });
 
-         drawer = findViewById(R.id.drawer_layout);
+        drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -158,7 +189,27 @@ public class HomeActivity extends AppCompatActivity
         recyclerView.setLayoutManager(layoutManager);
 
         loadMenu();
+    }
 
+    //15.給權限方法
+    private void requestRuntimePermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                },12);
+        Log.v("brad","requestRuntimePermission()");
+    }
+
+
+
+    //按下允許權限時init
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        init();
+        Log.v("brad","onRequestPermissionsResult");
     }
 
     //6.顯示Dialog方法
@@ -195,7 +246,7 @@ public class HomeActivity extends AppCompatActivity
         btnCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                uploadCamera();
+                playCamera();
             }
         });
 
@@ -229,9 +280,19 @@ public class HomeActivity extends AppCompatActivity
         alertDialog.show();//顯示DiaLog
     }
 
-    //14.拍照後照片上傳
-    private void uploadCamera() {
-        Log.v("brad","uploadCamera");
+    //14.拍照後照片存檔到手機裡
+    private void playCamera() {
+        String random =  UUID.randomUUID().toString();//產生亂數照片名
+        cameraUri=  FileProvider.getUriForFile(//照相機拍照,存檔
+                HomeActivity.this,
+                getPackageName()+".provider",
+                new File(sdroot+"/DCIM/Camera",random +".jpg")
+        );
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);//Intent相機出來
+        intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,cameraUri);//掛上素質(1.外布檔案,2寫好的fileProvider路徑)
+        startActivityForResult(intent,Common.CAMERA_REQUEST_CODE);
+
+        Log.v("brad","拍照成功,camerUri:" + cameraUri);
     }
 
     //9.上傳圖片檔方法
@@ -286,12 +347,57 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        //選擇照片後,從data資料取得uri
         if(requestCode == Common.PICK_IMAGE_REQUEST && resultCode == RESULT_OK //如果code== 71 而且結果送出Code== ok
         && data != null && data.getData() != null){//而且data資料有近來
             saveUri = data.getData();//取得data資料,灌到uri裡
             btnSelect.setText("Image Selected");
         }
+
+        //拍照後從data資料取得uri
+       else if(requestCode == Common.CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
+                cameraUpload();
+        }
     }
+
+    //16.照片檔案上傳Firebase方法
+    private void cameraUpload(){
+
+            final ProgressDialog mprogressDialog = new ProgressDialog(this);
+            mprogressDialog.setMessage("Plase waiting..");
+            mprogressDialog.show();
+
+            String imageName = UUID.randomUUID().toString();
+            final StorageReference imageFolder = storageReference.child("images/"+ imageName);
+
+            imageFolder.putFile(cameraUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    mprogressDialog.dismiss();
+                    Toast.makeText(HomeActivity.this,"圖片檔案上傳成功",Toast.LENGTH_SHORT).show();
+                    Log.v("brad","圖片上傳成功 ");
+
+                    //圖片下載成功時
+                    imageFolder.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                        newCatrgory = new Category(uri.toString(),edtName.getText().toString());//設定新分類(1.選擇的Uri圖檔,2.你輸入的檔案名,)
+                        Log.v("brad","onSuccess=>"+"uri:" + uri);
+                        }
+                    });
+                }
+            })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.v("brad","onFailure => e:" + e.toString());
+                        }
+                    });
+
+            Log.v("brad","onActivityResult=> CameraUri:" + cameraUri);
+        }
+
 
     //7.按下Select選擇圖片檔案
     private void chooseImage() {

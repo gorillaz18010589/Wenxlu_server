@@ -25,7 +25,7 @@ public class Common {
     public static final String DELETE = "Delete";
 
     public static final int PICK_IMAGE_REQUEST = 71;
-
+    public static final int CAMERA_REQUEST_CODE = 1;//自己設定的相機回應馬
 
     public static final String baseUrl = "https://maps.googleapis.com";
 

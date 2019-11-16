@@ -5,10 +5,17 @@ package tw.org.iii.appps.androidwenxlufood;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -31,10 +38,22 @@ public class SignInActivity extends AppCompatActivity {
     FirebaseDatabase database;
     DatabaseReference Users;
 
+    private Vibrator vibrator;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.VIBRATE) //寫的權限
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.VIBRATE
+
+                    },
+                    12);
+        }
 
         //1.init
         editPhone = findViewById(R.id.editPhone);
@@ -53,6 +72,8 @@ public class SignInActivity extends AppCompatActivity {
                 sigInUser(editPhone.getText().toString(),editPassword.getText().toString());
             }
         });
+
+
 
     }
 
@@ -86,6 +107,7 @@ public class SignInActivity extends AppCompatActivity {
                             finish();
 
                         }else{//密碼錯誤
+                            createOneShotVibrator();
                             Toast.makeText(SignInActivity.this,"Wrong PassWord",Toast.LENGTH_SHORT).show();
                         }
 
@@ -103,5 +125,19 @@ public class SignInActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+
+    //4.產生一次性手機震動方法
+    //VibrationEffect.createOneShot(long milliseconds, int amplitude)//產生一次性震動(1.震動的秒數2.震動的強度)
+    private void createOneShotVibrator(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){//如果使用者的版本,大於等於Ozeo版本的話
+            vibrator.vibrate(
+                    VibrationEffect.createOneShot(
+                            1*1000,//震動秒數為一秒
+                            VibrationEffect.DEFAULT_AMPLITUDE));//震動強度為默認強度
+        }else{//小於ozero版本
+            vibrator.vibrate(1*1000);
+        }
     }
 }
